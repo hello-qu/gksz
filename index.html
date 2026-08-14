@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>今日时政日报</title>
+<style>
+:root{--bg:#f4f1eb;--paper:#fffdf8;--ink:#24201d;--muted:#766e66;--accent:#9d2d20;--line:#e5ded4}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 10% 0%,rgba(157,45,32,.08),transparent 28rem),var(--bg);color:var(--ink);font-family:"Noto Serif SC","Songti SC","STSong",serif}
+.fallback{min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center}.card{max-width:560px;padding:36px 42px;background:var(--paper);border:1px solid var(--line);border-radius:20px;box-shadow:0 18px 55px rgba(67,43,25,.11)}h1{margin:0 0 12px;color:var(--accent);font-size:clamp(26px,5vw,42px)}p{color:var(--muted);line-height:1.8}a{color:var(--accent);text-decoration:none;border-bottom:1px solid currentColor}
+</style>
+</head>
+<body>
+<main class="fallback">
+  <section class="card">
+    <h1>今日时政日报</h1>
+    <p id="status">正在匹配今日日期版内容……</p>
+    <p><a id="open" href="#">手动打开今日日报</a></p>
+  </section>
+</main>
+<script>
+(function(){
+  const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+  const date=Object.fromEntries(parts.map(part=>[part.type,part.value]));
+  const filename=`${date.year}-${date.month}-${date.day}.html`;
+  const status=document.getElementById('status');
+  const open=document.getElementById('open');
+  open.href=filename;
+  status.textContent=`正在打开 ${filename}`;
+  window.location.replace(filename);
+})();
+</script>
+</body>
+</html>
