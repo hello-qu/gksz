@@ -5,6 +5,11 @@ on:
     - cron: '0 8 * * *'
       timezone: 'Asia/Shanghai'
   workflow_dispatch:
+    inputs:
+      report_date:
+        description: '指定报告日期 YYYY-MM-DD；留空则使用北京时间当天'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -31,13 +36,17 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: gpt-5
+          REPORT_DATE: ${{ inputs.report_date }}
         run: python scripts/generate_daily_report.py
 
       - name: Commit and push generated files
         shell: bash
         run: |
           set -euo pipefail
-          report_date="$(TZ=Asia/Shanghai date +%F)"
+          report_date="${{ inputs.report_date }}"
+          if [ -z "${report_date}" ]; then
+            report_date="$(TZ=Asia/Shanghai date +%F)"
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "${report_date}.html" "${report_date}.md"

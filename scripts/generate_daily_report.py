@@ -207,9 +207,16 @@ def render_html(markdown: str, report_date: str, style: str, script: str) -> str
 
 
 def main() -> None:
-    now = datetime.now(TIMEZONE).date()
-    report_date = now.isoformat()
-    focus_date = (now - timedelta(days=1)).isoformat()
+    requested_date = os.environ.get("REPORT_DATE", "").strip()
+    if requested_date:
+        try:
+            report_day = date.fromisoformat(requested_date)
+        except ValueError as error:
+            raise RuntimeError("REPORT_DATE must use YYYY-MM-DD format") from error
+    else:
+        report_day = datetime.now(TIMEZONE).date()
+    report_date = report_day.isoformat()
+    focus_date = (report_day - timedelta(days=1)).isoformat()
     prompt = f"""你正在为中国公务员考试和事业编备考者生成 {report_date} 的时政日报，重点回看昨天 {focus_date} 的信息。请使用联网检索，逐条核对原文，不要凭记忆编造新闻、数字、标题或网址。
 
 优先来源：半月谈、人民网、人民网观点、求是网、中国政府网、国务院新闻办公室、中国网、新华社、人民数据、习近平系列重要讲话数据库，以及其他中央和国家机关官网。重点筛选国家政策、重大政策文件、中央和国务院会议通告、政策解读、时事评论和对考试有价值的社会治理动态。
