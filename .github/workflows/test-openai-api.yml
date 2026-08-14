@@ -1,0 +1,32 @@
+name: Test OpenAI API Key
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test API authentication
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          set -eu
+          if [ -z "${OPENAI_API_KEY}" ]; then
+            echo "OPENAI_API_KEY is not configured"
+            exit 1
+          fi
+
+          status=$(curl -sS -o /dev/null -w '%{http_code}' \
+            https://api.openai.com/v1/models \
+            -H "Authorization: Bearer ${OPENAI_API_KEY}")
+
+          if [ "${status}" = "200" ]; then
+            echo "OpenAI API key authentication succeeded."
+          else
+            echo "OpenAI API request failed with HTTP ${status}."
+            exit 1
+          fi
